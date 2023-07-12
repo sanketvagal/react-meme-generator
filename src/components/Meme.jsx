@@ -1,14 +1,21 @@
 import React from "react";
-import memesData from "../memesData";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /**
-    * Challenge: 
-    * 1. Set up the text inputs to save to
-    *    the `topText` and `bottomText` state variables.
-    * 2. Replace the hard-coded text on the image with
-    *    the text being saved to state.
-    */
+ * Challenge: 
+ * As soon as the Meme component loads the first time,
+ * make an API call to "https://api.imgflip.com/get_memes".
+ * 
+ * When the data comes in, save just the memes array part
+ * of that data to the `allMemes` state
+ * 
+ * Think about if there are any dependencies that, if they
+ * changed, you'd want to cause to re-run this function.
+ * 
+ * Hint: for now, don't try to use an async/await function.
+ * Instead, use `.then()` blocks to resolve the promises
+ * from using `fetch`. We'll learn why after this challenge.
+ */
 
 export default function Meme(props) {
 
@@ -18,11 +25,17 @@ export default function Meme(props) {
         randomImage: "http://i.imgflip.com/1bij.jpg"
     })
 
-    const [allMemeImages, setAllMemeImages] = useState(memesData)
+    const [allMemes, setAllMemes] = useState({})
+
+    useEffect(function () {
+        console.log("Effect ran")
+        fetch("https://api.imgflip.com/get_memes")
+            .then(res => res.json())
+            .then(data => setAllMemes(data.data.memes))
+    }, [])
 
     const getMemeImage = () => {
-        let memes = allMemeImages.data.memes
-        let memeUrl = memes[Math.floor(Math.random() * memes.length)].url
+        const memeUrl = allMemes[Math.floor(Math.random() * allMemes.length)].url
         setMemeImage(prevMeme => ({ ...prevMeme, randomImage: memeUrl }))
     }
 
@@ -30,7 +43,7 @@ export default function Meme(props) {
         const { name, value } = event.target
         setMemeImage(prevMeme => ({ ...prevMeme, [name]: value }))
     }
-    console.log(meme)
+
     return (
         <main>
             <div className="form">
